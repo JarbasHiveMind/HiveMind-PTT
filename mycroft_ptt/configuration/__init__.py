@@ -12,7 +12,14 @@ DEFAULT_CONFIGURATION = {
                  'record_utterances': False,
                  'sample_rate': 16000,
                  'signal_folder': join(gettempdir(), "hivemind", "ipc"),
-                 'listen_sound': 'snd/start_listening.wav'},
+                 'listen_sound': 'snd/start_listening.wav',
+                 'error_sound': 'snd/listening_error.mp3'},
+    'playback': {
+        'play_wav_cmd': "aplay %1",
+        'play_mp3_cmd': "mpg123 %1",
+        'play_ogg_cmd': "ogg123 -q %1",
+        'play_fallback_cmd': "play %1"
+    },
     'log_blacklist': [],
     'port': 5678,
     'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},

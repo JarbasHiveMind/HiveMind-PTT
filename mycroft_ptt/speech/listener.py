@@ -26,6 +26,8 @@ from requests.exceptions import ConnectionError
 from mycroft_ptt.configuration import CONFIGURATION
 from mycroft_ptt.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
+from mycroft_ptt.playback import play_audio, play_mp3, play_ogg, play_wav, \
+    resolve_resource_file
 from speech2text import STTFactory
 from queue import Queue, Empty
 from jarbas_utils.log import LOG
@@ -259,6 +261,22 @@ class AudioConsumer(Thread):
             send_unknown_intent()
             LOG.error(e)
             LOG.error("Speech Recognition could not understand audio")
+            # If enabled, play a wave file with a short sound to audibly
+            # indicate speech recognition failed
+            sound = CONFIGURATION["listener"].get('error_sound') or \
+                    'snd/listening_error.mp3'
+            try:
+                audio_file = resolve_resource_file(sound)
+                if audio_file.endswith(".wav"):
+                    play_wav(audio_file).wait()
+                elif audio_file.endswith(".mp3"):
+                    play_mp3(audio_file).wait()
+                elif audio_file.endswith(".ogg"):
+                    play_ogg(audio_file).wait()
+                else:
+                    play_audio(audio_file).wait()
+            except Exception as e:
+                LOG.warning(e)
             return None
 
         dialog_name = 'not connected to the internet'
