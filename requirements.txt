@@ -1,0 +1,10 @@
+speech2text
+text2speech>=0.1.4
+psutil
+jarbas_hive_mind>=0.10.3
+pyee
+requests
+PyAudio==0.2.11
+jarbas_utils
+requests_futures
+json_database>=0.1.3
