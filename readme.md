@@ -46,6 +46,15 @@ Default values are
 
 ```
 
+To trigger listening you need to create a signal, no UI has been made at 
+this time
+
+```bash
+ touch {ipc_path}/signal/startListening
+```
+
+ipc_path can be set in config, default is ```/tmp/hivemind/ipc```
+
 ## Configuration
 
 You can set the configuration at
@@ -84,7 +93,10 @@ Otherwise default configuration will be used, check bellow for defaults
         "channels": 1,
         "record_utterances": false,
         "multiplier": 1.0,
-        "energy_ratio": 1.5
+        "energy_ratio": 1.5,
+        "signal_folder": "/tmp/hivemind/ipc",
+        "listen_sound": "snd/start_listening.wav",
+        "error_sound": "snd/listening_error.mp3"
     }
 }
 ```
@@ -92,7 +104,8 @@ data_dir is where recordings are saved,
 
     {data_dir}/utterances
 
-you can optionally set device_index
+if you are having trouble finding the microphone you can optionally set device_index
+
 ```json
 {
     "listener": {
@@ -108,3 +121,20 @@ or device_name, which is a name or regex pattern
     }
 }
 ```  
+
+
+### Configure audio playback
+
+you shouldn"t need to change this, a common change is replacing ```aplay``` with ```paplay``` when using pulseaudio, or use sox for everything
+
+```json
+{
+    "playback": {
+        "play_wav_cmd": "aplay %1",
+        "play_mp3_cmd": "mpg123 %1",
+        "play_ogg_cmd": "ogg123 -q %1",
+        "play_fallback_cmd": "play %1"
+    }
+}
+
+```
