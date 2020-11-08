@@ -9,6 +9,7 @@ Mycroft Push to Talk Satellite, connect to  [Mycroft HiveMind](https://github.co
   - [configure speech to text](#configure-speech-to-text)
   - [configure text to speech](#configure-text-to-speech)
   - [configure listener](#configure-listener)
+  - [configure audio playback](#configure-audio-playback)
 
 
 ## Install
