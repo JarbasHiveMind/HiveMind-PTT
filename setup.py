@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='HiveMind-PtT',
-    version='0.1.0.',
+    version='0.1.0',
     packages=['mycroft_ptt', 'mycroft_ptt.speech',
               'mycroft_ptt.res',
               'mycroft_ptt.configuration'],
