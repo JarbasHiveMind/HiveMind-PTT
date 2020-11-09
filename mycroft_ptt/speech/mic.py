@@ -414,11 +414,14 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.adjust_for_ambient_noise(source, 1.0)
 
         LOG.debug("Waiting for listen signal...")
+        LOG.debug("Muting microphone, just in case it wasnt muted yet")
+        source.mute()
         self._wait_for_listen_signal(source)
         self._listen_triggered = False
         if self._stop_signaled:
             return
-
+        LOG.debug("Unmuting microphone")
+        source.unmute()
         LOG.debug("Recording...")
         bus.emit("recognizer_loop:record_begin")
 
@@ -427,7 +430,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         bus.emit("recognizer_loop:record_end")
 
         LOG.debug("Thinking...")
-
+        LOG.debug("Muting microphone, privacy is awesome")
+        source.mute()
         return audio_data
 
     def _adjust_threshold(self, energy, seconds_per_buffer):
