@@ -263,10 +263,9 @@ class AudioConsumer(Thread):
             LOG.error("Speech Recognition could not understand audio")
             # If enabled, play a wave file with a short sound to audibly
             # indicate speech recognition failed
-            sound = CONFIGURATION["listener"].get('error_sound') or \
-                    'snd/listening_error.mp3'
+            sound = CONFIGURATION["listener"].get('error_sound')
+            audio_file = resolve_resource_file(sound)
             try:
-                audio_file = resolve_resource_file(sound)
                 if audio_file:
                     if audio_file.endswith(".wav"):
                         play_wav(audio_file).wait()

@@ -370,10 +370,9 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             sleep(self.SEC_BETWEEN_SIGNAL_CHECKS)
         # If enabled, play a wave file with a short sound to audibly
         # indicate listen signal was detected.
-        sound = self.config["listener"].get('listen_sound') or \
-                "snd/start_listening.wav"
+        sound = self.config["listener"].get('listen_sound')
+        audio_file = resolve_resource_file(sound)
         try:
-            audio_file = resolve_resource_file(sound)
             if audio_file:
                 source.mute()
                 if audio_file.endswith(".wav"):
