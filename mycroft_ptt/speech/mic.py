@@ -172,28 +172,7 @@ def get_silence(num_bytes):
     return b'\0' * num_bytes
 
 
-
-
 class ResponsiveRecognizer(speech_recognition.Recognizer):
-    # The minimum seconds of noise before a
-    # phrase can be considered complete
-    MIN_LOUD_SEC_PER_PHRASE = 0.5
-
-    # The minimum seconds of silence required at the end
-    # before a phrase will be considered complete
-    MIN_SILENCE_AT_END = 0.25
-
-    # The maximum seconds a phrase can be recorded,
-    # provided there is noise the entire time
-    RECORDING_TIMEOUT = 10.0
-
-    # The maximum time it will continue to record silence
-    # when not enough noise has been detected
-    RECORDING_TIMEOUT_WITH_SILENCE = 3.0
-
-    # Time between checks for listen signal
-    SEC_BETWEEN_SIGNAL_CHECKS = 0.2
-
     def __init__(self):
 
         self.config = CONFIGURATION
@@ -205,6 +184,15 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.audio = pyaudio.PyAudio()
         self.multiplier = listener_config.get('multiplier')
         self.energy_ratio = listener_config.get('energy_ratio')
+        self.sec_between_signal_checks = \
+            listener_config.get("sec_between_signal_checks", 0.2)
+        self.recording_timeout_with_silence = \
+            listener_config.get("recording_timeout_with_silence", 3.0)
+        self.recording_timeout = listener_config.get("recording_timeout", 10.0)
+        self.min_loud_sec = listener_config.get("min_loud_sec", 0.5)
+        self.min_silence_at_end = \
+            listener_config.get("min_silence_at_end", 0.25)
+
         data_path = os.path.expanduser(self.config["data_dir"])
         if not os.path.isdir(data_path):
             os.makedirs(data_path)
@@ -266,14 +254,14 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             return level
 
         # Smallest number of loud chunks required to return
-        min_loud_chunks = int(self.MIN_LOUD_SEC_PER_PHRASE / sec_per_buffer)
+        min_loud_chunks = int(self.min_loud_sec / sec_per_buffer)
 
         # Maximum number of chunks to record before timing out
-        max_chunks = int(self.RECORDING_TIMEOUT / sec_per_buffer)
+        max_chunks = int(self.recording_timeout / sec_per_buffer)
         num_chunks = 0
 
         # Will return if exceeded this even if there's not enough loud chunks
-        max_chunks_of_silence = int(self.RECORDING_TIMEOUT_WITH_SILENCE /
+        max_chunks_of_silence = int(self.recording_timeout_with_silence /
                                     sec_per_buffer)
 
         # bytearray to store audio in
@@ -309,7 +297,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             quiet_enough = noise <= min_noise
             if quiet_enough:
                 silence_duration += sec_per_buffer
-                if silence_duration < self.MIN_SILENCE_AT_END:
+                if silence_duration < self.min_silence_at_end:
                     quiet_enough = False  # gotta be silent for min of 1/4 sec
             else:
                 silence_duration = 0
@@ -367,7 +355,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             sec_per_buffer (float):  Fractional number of seconds in each chunk
         """
         while not self._stop_signaled and not self._is_listen_signaled():
-            sleep(self.SEC_BETWEEN_SIGNAL_CHECKS)
+            sleep(self.sec_between_signal_checks)
         # If enabled, play a wave file with a short sound to audibly
         # indicate listen signal was detected.
         sound = self.config["listener"].get('listen_sound')

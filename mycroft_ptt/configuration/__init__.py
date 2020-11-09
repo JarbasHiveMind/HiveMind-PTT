@@ -6,20 +6,42 @@ DEFAULT_CONFIGURATION = {
     'data_dir': expanduser('~/jarbasHiveMind/recordings'),
     'host': '0.0.0.0',
     'lang': 'en-us',
-    'listener': {'channels': 1,
-                 'energy_ratio': 1.5,
-                 'multiplier': 1.0,
-                 'record_utterances': False,
-                 'sample_rate': 16000,
-                 'signal_folder': join(gettempdir(), "hivemind", "ipc"),
-                 'listen_sound': 'snd/start_listening.wav',
-                 'error_sound': 'snd/listening_error.mp3'},
+    'listener': {
+        # should recordings be saved? {data_dir}/recordings/utterances
+        'record_utterances': False,
+        # input stream config
+        'channels': 1,
+        'sample_rate': 16000,
+        # noise detection
+        'energy_ratio': 1.5,
+        'multiplier': 1.0,
+        # The minimum seconds of noise before a
+        # phrase can be considered complete
+        "min_loud_sec": 0.7,
+        # The minimum seconds of silence required at the end
+        # before a phrase will be considered complete
+        "min_silence_at_end": 0.3,
+        # The maximum seconds a phrase can be recorded,
+        # provided there is noise the entire time
+        "recording_timeout": 10,
+        # The maximum time it will continue to record silence
+        # when not enough noise has been detected
+        "recording_timeout_with_silence": 3,
+        # Time between checks for listen signal
+        "sec_between_signal_checks": 0.2,
+        # checks for {signal_folder}/signal/startListening
+        'signal_folder': join(gettempdir(), "hivemind", "ipc"),
+        # can be set to None or full file path
+        'listen_sound': 'snd/start_listening.wav',
+        'error_sound': 'snd/listening_error.mp3'},
+
     'playback': {
         'play_wav_cmd': "aplay %1",
         'play_mp3_cmd': "mpg123 %1",
         'play_ogg_cmd': "ogg123 -q %1",
         'play_fallback_cmd': "play %1"
     },
+
     'log_blacklist': [],
     'port': 5678,
     'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},
