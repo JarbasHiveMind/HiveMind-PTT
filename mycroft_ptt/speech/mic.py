@@ -411,10 +411,11 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         # any, as we expect the user and Mycroft to not be talking.
         # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
         #       speech is detected, but there is no code to actually do that.
+        LOG.debug("Unmuting microphone to adjust for ambient noise")
+        source.unmute()
         self.adjust_for_ambient_noise(source, 1.0)
-
+        LOG.debug("Muting microphone")
         LOG.debug("Waiting for listen signal...")
-        LOG.debug("Muting microphone, just in case it wasnt muted yet")
         source.mute()
         self._wait_for_listen_signal(source)
         self._listen_triggered = False
@@ -428,10 +429,9 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
-
-        LOG.debug("Thinking...")
-        LOG.debug("Muting microphone, privacy is awesome")
+        LOG.debug("Muting microphone")
         source.mute()
+        LOG.debug("Thinking...")
         return audio_data
 
     def _adjust_threshold(self, energy, seconds_per_buffer):
