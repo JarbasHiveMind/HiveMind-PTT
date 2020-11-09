@@ -354,15 +354,16 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             source (AudioSource):  Source producing the audio chunks
             sec_per_buffer (float):  Fractional number of seconds in each chunk
         """
+
         while not self._stop_signaled and not self._is_listen_signaled():
             sleep(self.sec_between_signal_checks)
+
         # If enabled, play a wave file with a short sound to audibly
         # indicate listen signal was detected.
         sound = self.config["listener"].get('listen_sound')
         audio_file = resolve_resource_file(sound)
         try:
             if audio_file:
-                source.mute()
                 if audio_file.endswith(".wav"):
                     play_wav(audio_file).wait()
                 elif audio_file.endswith(".mp3"):
@@ -371,7 +372,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     play_ogg(audio_file).wait()
                 else:
                     play_audio(audio_file).wait()
-                source.unmute()
         except Exception as e:
             LOG.warning(e)
 
@@ -406,14 +406,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         #        bytes_per_sec = source.SAMPLE_RATE * source.SAMPLE_WIDTH
         sec_per_buffer = float(source.CHUNK) / source.SAMPLE_RATE
 
-        # Every time a new 'listen()' request begins, reset the threshold
-        # used for silence detection.  This is as good of a reset point as
-        # any, as we expect the user and Mycroft to not be talking.
-        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
-        #       speech is detected, but there is no code to actually do that.
-        LOG.debug("Unmuting microphone to adjust for ambient noise")
-        source.unmute()
-        self.adjust_for_ambient_noise(source, 1.0)
         LOG.debug("Muting microphone")
         LOG.debug("Waiting for listen signal...")
         source.mute()
@@ -421,7 +413,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self._listen_triggered = False
         if self._stop_signaled:
             return
-        LOG.debug("Unmuting microphone")
+        LOG.debug("Unmuting microphone for STT")
         source.unmute()
         LOG.debug("Recording...")
         bus.emit("recognizer_loop:record_begin")
@@ -429,8 +421,16 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
-        LOG.debug("Muting microphone")
-        source.mute()
+
+        # Every time a 'listen' request ends, reset the threshold used for
+        # silence detection.
+        # This is as good of a reset point as any, as we expect the user to
+        # have stopped talking and Mycroft to not be talking yet
+        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
+        #       speech is detected, but there is no code to actually do that.
+
+        self.adjust_for_ambient_noise(source, 1.0)
+
         LOG.debug("Thinking...")
         return audio_data
 
