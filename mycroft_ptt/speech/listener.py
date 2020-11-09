@@ -267,14 +267,15 @@ class AudioConsumer(Thread):
                     'snd/listening_error.mp3'
             try:
                 audio_file = resolve_resource_file(sound)
-                if audio_file.endswith(".wav"):
-                    play_wav(audio_file).wait()
-                elif audio_file.endswith(".mp3"):
-                    play_mp3(audio_file).wait()
-                elif audio_file.endswith(".ogg"):
-                    play_ogg(audio_file).wait()
-                else:
-                    play_audio(audio_file).wait()
+                if audio_file:
+                    if audio_file.endswith(".wav"):
+                        play_wav(audio_file).wait()
+                    elif audio_file.endswith(".mp3"):
+                        play_mp3(audio_file).wait()
+                    elif audio_file.endswith(".ogg"):
+                        play_ogg(audio_file).wait()
+                    else:
+                        play_audio(audio_file).wait()
             except Exception as e:
                 LOG.warning(e)
             return None

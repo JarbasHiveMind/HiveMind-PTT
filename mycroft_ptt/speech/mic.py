@@ -374,16 +374,17 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                 "snd/start_listening.wav"
         try:
             audio_file = resolve_resource_file(sound)
-            source.mute()
-            if audio_file.endswith(".wav"):
-                play_wav(audio_file).wait()
-            elif audio_file.endswith(".mp3"):
-                play_mp3(audio_file).wait()
-            elif audio_file.endswith(".ogg"):
-                play_ogg(audio_file).wait()
-            else:
-                play_audio(audio_file).wait()
-            source.unmute()
+            if audio_file:
+                source.mute()
+                if audio_file.endswith(".wav"):
+                    play_wav(audio_file).wait()
+                elif audio_file.endswith(".mp3"):
+                    play_mp3(audio_file).wait()
+                elif audio_file.endswith(".ogg"):
+                    play_ogg(audio_file).wait()
+                else:
+                    play_audio(audio_file).wait()
+                source.unmute()
         except Exception as e:
             LOG.warning(e)
 
