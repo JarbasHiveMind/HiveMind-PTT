@@ -96,7 +96,9 @@ class AudioProducer(Thread):
     def run(self):
         restart_attempts = 0
         with self.mic as source:
+            LOG.info("Adjusting for ambient noise, be silent!!!")
             self.recognizer.adjust_for_ambient_noise(source)
+            LOG.info("Ambient noise profile has been created")
             while self.state.running:
                 try:
                     audio = self.recognizer.listen(source, self.emitter,
@@ -281,12 +283,6 @@ class AudioConsumer(Thread):
 
         dialog_name = 'not connected to the internet'
         self.emitter.emit('speak', {'utterance': dialog_name})
-
-    def __speak(self, utterance):
-        payload = {
-            'utterance': utterance
-        }
-        self.emitter.emit("speak", payload)
 
 
 class RecognizerLoopState:

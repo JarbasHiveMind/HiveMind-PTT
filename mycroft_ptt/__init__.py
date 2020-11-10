@@ -77,6 +77,9 @@ class JarbasPtTTerminal(HiveMindTerminal):
 
         self.send_to_hivemind_bus(msg)
 
+    def handle_ambient_noise(self):
+        self.recognizer.trigger_ambient_noise_adjustment()
+
     def handle_unknown(self):
         LOG.info("mycroft.speech.recognition.unknown")
 
@@ -115,6 +118,8 @@ class JarbasPtTTerminal(HiveMindTerminal):
                      self.handle_record_begin)
         self.loop.on('recognizer_loop:record_end',
                      self.handle_record_end)
+        self.loop.on('recognizer_loop:ambient_noise',
+                     self.handle_ambient_noise)
         self.loop.run()
 
     def stop_listening(self):
@@ -124,6 +129,8 @@ class JarbasPtTTerminal(HiveMindTerminal):
                                   self.handle_record_begin)
         self.loop.remove_listener('recognizer_loop:record_end',
                                   self.handle_record_end)
+        self.loop.remove_listener('recognizer_loop:ambient_noise',
+                                  self.handle_ambient_noise)
 
     # parsed protocol messages
     def handle_incoming_mycroft(self, message):

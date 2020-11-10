@@ -192,6 +192,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.min_loud_sec = listener_config.get("min_loud_sec", 0.5)
         self.min_silence_at_end = \
             listener_config.get("min_silence_at_end", 0.25)
+        self.ambient_noise_adjustment_time = listener_config.get(
+            "ambient_noise_adjustment_time", 1.0)
 
         data_path = os.path.expanduser(self.config["data_dir"])
         if not os.path.isdir(data_path):
@@ -200,6 +202,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         # Signal statuses
         self._stop_signaled = False
         self._listen_triggered = False
+        self._should_adjust_noise = False
 
     def record_sound_chunk(self, source):
         return source.stream.read(source.CHUNK, self.overflow_exc)
@@ -348,6 +351,10 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         LOG.debug('Listen triggered from external source.')
         self._listen_triggered = True
 
+    def trigger_ambient_noise_adjustment(self):
+        LOG.debug("Ambient noise adjustment requested from external source")
+        self._should_adjust_noise = True
+
     def _wait_for_listen_signal(self, source):
         """Listen continuously on source until a listen signal is detected
         Args:
@@ -356,6 +363,13 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         """
 
         while not self._stop_signaled and not self._is_listen_signaled():
+            if check_for_signal('adjustAmbientNoise') or \
+                    self._should_adjust_noise:
+                LOG.info("Adjusting for ambient noise, be silent!!!")
+                self.adjust_for_ambient_noise(source,
+                                              self.ambient_noise_adjustment_time)
+                LOG.info("Ambient noise profile has been created")
+                self._should_adjust_noise = False
             sleep(self.sec_between_signal_checks)
 
         # If enabled, play a wave file with a short sound to audibly
@@ -421,16 +435,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
-
-        # Every time a 'listen' request ends, reset the threshold used for
-        # silence detection.
-        # This is as good of a reset point as any, as we expect the user to
-        # have stopped talking and Mycroft to not be talking yet
-        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
-        #       speech is detected, but there is no code to actually do that.
-
-        self.adjust_for_ambient_noise(source, 1.0)
-
         LOG.debug("Thinking...")
         return audio_data
 
