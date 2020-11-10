@@ -11,6 +11,8 @@ Mycroft Push to Talk Satellite, connect to  [Mycroft HiveMind](https://github.co
   - [configure listener](#configure-listener)
   - [configure audio playback](#configure-audio-playback)
 
+Watch it running in a [pinephone](https://www.pine64.org/pinephone/)
+[![Watch the video](https://img.youtube.com/vi/Mn59YN-AW2A/maxresdefault.jpg)](https://youtu.be/T-D1KVIuvjA)
 
 ## Install
 
@@ -47,14 +49,39 @@ Default values are
 
 ```
 
-To trigger listening you need to create a signal, no UI has been made at 
-this time
+## Signals
+
+To interact with this you need to create signals, signals are just temporary files, no UI has been made at this time
+
+ipc_path can be set in config, default is ```/tmp/hivemind/ipc``` creating a [tmpfs](https://en.wikipedia.org/wiki/Tmpfs) is strongly recommended
+
+![ramdisk](./ramdisk.png)
+
+### Listening
+
+To trigger listening you need to create a signal named startListening
 
 ```bash
  touch {ipc_path}/signal/startListening
 ```
 
-ipc_path can be set in config, default is ```/tmp/hivemind/ipc```
+### Button Press
+
+Some support for a button press is there, this will also trigger listening, 
+but gives a chance (0.25 seconds currently) for other processes to intercept 
+this signal
+
+```bash
+ touch {ipc_path}/signal/buttonPress
+```
+
+### Adjust ambient noise
+
+If VAD is not working that well for you, you can trigger an adjustment for ambient noise, be sure to be silent during this process
+
+```bash
+ touch {ipc_path}/signal/adjustAmbientNoise
+```
 
 ## Configuration
 

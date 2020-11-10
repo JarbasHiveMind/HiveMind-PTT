@@ -335,7 +335,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             if check_for_signal('buttonPress'):
                 # Signal is still here, assume it was intended to
                 # begin recording
-                LOG.debug("Button Pressed, wakeword not needed")
+                LOG.debug("Button Pressed, listen signal not needed")
                 return True
 
         return False
