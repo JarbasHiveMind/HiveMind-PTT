@@ -193,7 +193,9 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.min_silence_at_end = \
             listener_config.get("min_silence_at_end", 0.25)
         self.ambient_noise_adjustment_time = listener_config.get(
-            "ambient_noise_adjustment_time", 1.0)
+            "ambient_noise_adjustment_time", 0.5)
+        self.auto_ambient_noise_adjustment = listener_config.get(
+            "auto_ambient_noise_adjustment", False)
 
         data_path = os.path.expanduser(self.config["data_dir"])
         if not os.path.isdir(data_path):
@@ -355,6 +357,13 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         LOG.debug("Ambient noise adjustment requested from external source")
         self._should_adjust_noise = True
 
+    def _adjust_ambient_noise(self, source, time=None):
+        time = time or self.ambient_noise_adjustment_time
+        LOG.info("Adjusting for ambient noise, be silent!!!")
+        self.adjust_for_ambient_noise(source, time)
+        LOG.info("Ambient noise profile has been created")
+        self._should_adjust_noise = False
+
     def _wait_for_listen_signal(self, source):
         """Listen continuously on source until a listen signal is detected
         Args:
@@ -365,11 +374,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         while not self._stop_signaled and not self._is_listen_signaled():
             if check_for_signal('adjustAmbientNoise') or \
                     self._should_adjust_noise:
-                LOG.info("Adjusting for ambient noise, be silent!!!")
-                self.adjust_for_ambient_noise(source,
-                                              self.ambient_noise_adjustment_time)
-                LOG.info("Ambient noise profile has been created")
-                self._should_adjust_noise = False
+                self._adjust_ambient_noise(source)
             sleep(self.sec_between_signal_checks)
 
         # If enabled, play a wave file with a short sound to audibly
@@ -435,6 +440,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
+        if self.auto_ambient_noise_adjustment:
+            self._adjust_ambient_noise(source)
         LOG.debug("Thinking...")
         return audio_data
 

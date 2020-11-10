@@ -29,8 +29,11 @@ DEFAULT_CONFIGURATION = {
         "recording_timeout_with_silence": 3,
         # Time between checks for listen signal
         "sec_between_signal_checks": 0.2,
+        # Auto adjust for ambient noise (after recording, before STT
+        # processing, introduces latency for time defined bellow)
+        "auto_ambient_noise_adjustment": True,
         # Time to listen and adjust for ambient noise in seconds
-        "ambient_noise_adjustment_time": 1,
+        "ambient_noise_adjustment_time": 0.5,
         # checks for {signal_folder}/signal/startListening
         'signal_folder': join(gettempdir(), "hivemind", "ipc"),
         # can be set to None or full file path
