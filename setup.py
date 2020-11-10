@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='HiveMind-PtT',
-    version='0.1.3',
+    version='0.1.4',
     packages=['mycroft_ptt', 'mycroft_ptt.speech',
               'mycroft_ptt.res',
               'mycroft_ptt.configuration'],
@@ -16,8 +16,8 @@ setup(
                       "jarbas_utils",
                       "text2speech"],
     include_package_data=True,
-    url='https://github.com/OpenJarbas/HiveMind-voice-sat',
-    license='MIT',
+    url='https://github.com/JarbasHiveMind/HiveMind-PTT',
+    license='Apache2',
     author='jarbasAI',
     author_email='jarbasai@mailfence.com',
     description='Mycroft Push to Talk Satellite',
