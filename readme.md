@@ -12,7 +12,7 @@ Mycroft Push to Talk Satellite, connect to  [Mycroft HiveMind](https://github.co
   - [configure audio playback](#configure-audio-playback)
 
 Watch it running in a [pinephone](https://www.pine64.org/pinephone/)
-[![Watch the video](https://img.youtube.com/vi/Mn59YN-AW2A/maxresdefault.jpg)](https://youtu.be/T-D1KVIuvjA)
+[![Watch the video](https://img.youtube.com/vi/Mn59YN-AW2A/maxresdefault.jpg)](https://www.youtube.com/watch?v=Mn59YN-AW2A&feature=youtu.be)
 
 ## Install
 
