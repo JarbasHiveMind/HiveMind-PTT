@@ -8,3 +8,5 @@ PyAudio==0.2.11
 jarbas_utils
 requests_futures
 json_database>=0.1.3
+spidev
+RPi.GPIO

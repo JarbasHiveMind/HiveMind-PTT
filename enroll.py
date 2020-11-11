@@ -1,9 +1,9 @@
 from jarbas_hive_mind.database import ClientDatabase
 
-name = "JarbasPTTTerminal"
+name = "JarbasRespeakerPTTTerminal"
 access_key = "RESISTENCEisFUTILE"
 crypto_key = "resistanceISfutile"
-mail = "remote_cli@hivemind.com"
+mail = "Respeaker@hivemind.com"
 
 
 with ClientDatabase() as db:

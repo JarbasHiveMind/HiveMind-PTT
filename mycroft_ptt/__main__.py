@@ -1,4 +1,4 @@
-from mycroft_ptt import connect_to_hivemind, JarbasPtTTerminal
+from mycroft_ptt import connect_to_hivemind, JarbasRespeakerPtTTerminal
 from jarbas_hive_mind import HiveMindConnection
 from jarbas_hive_mind.discovery import LocalDiscovery
 from jarbas_utils.log import LOG
@@ -17,7 +17,7 @@ def discover_hivemind(name="JarbasPushToTalkTerminal",
             LOG.info("Fetching Node data: {url}".format(url=node_url))
             node = discovery.nodes[node_url]
             node.connect(crypto_key=crypto_key,
-                         node_type=JarbasPtTTerminal,
+                         node_type=JarbasRespeakerPtTTerminal,
                          headers=headers
                          )
         sleep(5)

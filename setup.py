@@ -4,7 +4,7 @@ setup(
     name='HiveMind-PtT',
     version='0.1.4',
     packages=['mycroft_ptt', 'mycroft_ptt.speech',
-              'mycroft_ptt.res',
+              'mycroft_ptt.res', 'mycroft_ptt.drivers',
               'mycroft_ptt.configuration'],
     install_requires=["jarbas_hive_mind>=0.10.3",
                       "speech2text",

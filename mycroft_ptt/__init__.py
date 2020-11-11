@@ -11,6 +11,8 @@ from tempfile import gettempdir
 from os.path import join, isdir
 from os import makedirs
 from mycroft_ptt.playback import play_audio, play_mp3, play_ogg, play_wav
+from mycroft_ptt.drivers import get_button, get_led
+from mycroft_ptt.speech.signal import create_signal
 
 
 class JarbasPtTTerminalProtocol(HiveMindTerminalProtocol):
@@ -28,9 +30,9 @@ class JarbasPtTTerminalProtocol(HiveMindTerminalProtocol):
             self.factory.stop_listening()
 
 
-class JarbasPtTTerminal(HiveMindTerminal):
+class JarbasRespeakerPtTTerminal(HiveMindTerminal):
     protocol = JarbasPtTTerminalProtocol
-    platform = "JarbasPushToTalkTerminalV0.1"
+    platform = "JarbasRespeakerPushToTalkTerminalV0.1"
 
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +41,40 @@ class JarbasPtTTerminal(HiveMindTerminal):
         self.tts = TTSFactory.create(self.config["tts"])
         LOG.debug("Using TTS engine: " + self.tts.__class__.__name__)
         self.tts.validate()
+
+        self.button = get_button()
+        self.button.on_press(self.handle_button_press)
+        self.button.on_button_down(self.handle_button_down)
+        self.button.on_button_up(self.handle_button_up)
+        self.led = get_led()
+        self.led.wakeup()
+
+    # respeaker
+    def handle_button_press(self, press_time=0):
+        LOG.info("button pressed")
+        create_signal("buttonPress")
+        context = {'platform': self.platform, "source": self.peer,
+                   'destination': "hive_mind"}
+        msg = {"data": {"press_time": press_time},
+               "type": "hivemind.PTT.button.press",
+               "context": context}
+        self.send_to_hivemind_bus(msg)
+
+    def handle_button_down(self):
+        context = {'platform': self.platform, "source": self.peer,
+                   'destination': "hive_mind"}
+        msg = {"data": {},
+               "type": "hivemind.PTT.button.down",
+               "context": context}
+        self.send_to_hivemind_bus(msg)
+
+    def handle_button_up(self):
+        context = {'platform': self.platform, "source": self.peer,
+                   'destination': "hive_mind"}
+        msg = {"data": {},
+               "type": "hivemind.PTT.button.up",
+               "context": context}
+        self.send_to_hivemind_bus(msg)
 
     # Voice Output
     def speak(self, utterance):
@@ -49,6 +85,7 @@ class JarbasPtTTerminal(HiveMindTerminal):
         audio_file = join(temppath, str(hash(utterance))[1:] +
                           "." + self.tts.audio_ext)
         self.tts.get_tts(utterance, audio_file)
+        self.led.speak()
         try:
             if audio_file.endswith(".wav"):
                 play_wav(audio_file).wait()
@@ -60,13 +97,16 @@ class JarbasPtTTerminal(HiveMindTerminal):
                 play_audio(audio_file).wait()
         except Exception as e:
             LOG.warning(e)
+        self.led.off()
 
-    # Voice Input
+    # Events
     def handle_record_begin(self):
         LOG.info("Begin Recording...")
+        self.led.listen()
 
     def handle_record_end(self):
         LOG.info("End Recording...")
+        self.led.off()
 
     def handle_utterance(self, event):
         context = {'platform': self.platform, "source": self.peer,
@@ -80,9 +120,7 @@ class JarbasPtTTerminal(HiveMindTerminal):
     def handle_ambient_noise(self):
         self.recognizer.trigger_ambient_noise_adjustment()
 
-    def handle_unknown(self):
-        LOG.info("mycroft.speech.recognition.unknown")
-
+    # TODO bellow events not yet handled
     def handle_sleep(self):
         self.loop.sleep()
 
@@ -111,6 +149,7 @@ class JarbasPtTTerminal(HiveMindTerminal):
         """
         self.loop.force_unmute()
 
+    # loop events
     def start_listening(self):
         self.loop.on('recognizer_loop:utterance',
                      self.handle_utterance)
@@ -120,6 +159,7 @@ class JarbasPtTTerminal(HiveMindTerminal):
                      self.handle_record_end)
         self.loop.on('recognizer_loop:ambient_noise',
                      self.handle_ambient_noise)
+        self.led.off()
         self.loop.run()
 
     def stop_listening(self):
@@ -131,6 +171,7 @@ class JarbasPtTTerminal(HiveMindTerminal):
                                   self.handle_record_end)
         self.loop.remove_listener('recognizer_loop:ambient_noise',
                                   self.handle_ambient_noise)
+        self.led.off()
 
     # parsed protocol messages
     def handle_incoming_mycroft(self, message):
@@ -144,13 +185,13 @@ class JarbasPtTTerminal(HiveMindTerminal):
 
 
 def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
-                        port=5678, name="JarbasPTTTerminal",
+                        port=5678, name="JarbasRespeakerPTTTerminal",
                         access_key="RESISTENCEisFUTILE",
                         crypto_key="resistanceISfutile"):
     con = HiveMindConnection(host, port)
 
-    terminal = JarbasPtTTerminal(config=config,
-                                 crypto_key=crypto_key,
-                                 headers=con.get_headers(name, access_key))
+    terminal = JarbasRespeakerPtTTerminal(config=config,
+                                          crypto_key=crypto_key,
+                                          headers=con.get_headers(name, access_key))
 
     con.connect(terminal)
