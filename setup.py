@@ -13,7 +13,7 @@ setup(
                       "requests_futures",
                       "psutil",
                       "PyAudio==0.2.11",
-                      "jarbas_utils",
+                      "ovos_utils",
                       "text2speech"],
     include_package_data=True,
     url='https://github.com/JarbasHiveMind/HiveMind-PTT',

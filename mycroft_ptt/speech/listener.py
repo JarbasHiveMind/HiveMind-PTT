@@ -30,7 +30,7 @@ from mycroft_ptt.playback import play_audio, play_mp3, play_ogg, play_wav, \
     resolve_resource_file
 from speech2text import STTFactory
 from queue import Queue, Empty
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 
 
 MAX_MIC_RESTARTS = 20

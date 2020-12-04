@@ -5,6 +5,6 @@ jarbas_hive_mind>=0.10.3
 pyee
 requests
 PyAudio==0.2.11
-jarbas_utils
+ovos_utils
 requests_futures
 json_database>=0.1.3

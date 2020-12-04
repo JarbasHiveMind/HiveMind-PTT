@@ -29,7 +29,7 @@ from mycroft_ptt.configuration import CONFIGURATION
 from mycroft_ptt.speech.signal import check_for_signal
 from mycroft_ptt.playback import play_audio, play_mp3, play_ogg, play_wav, \
     resolve_resource_file
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 
 
 class MutableStream:
