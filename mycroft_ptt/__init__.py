@@ -3,9 +3,9 @@ from mycroft_ptt.configuration import CONFIGURATION
 from jarbas_hive_mind.slave.terminal import HiveMindTerminalProtocol, \
     HiveMindTerminal
 from jarbas_hive_mind import HiveMindConnection
-from jarbas_utils.log import LOG
-from jarbas_utils import create_daemon
-from jarbas_utils.messagebus import Message
+from ovos_utils.log import LOG
+from ovos_utils import create_daemon
+from ovos_utils.messagebus import Message
 from text2speech import TTSFactory
 from tempfile import gettempdir
 from os.path import join, isdir

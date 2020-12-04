@@ -1,7 +1,7 @@
 from mycroft_ptt import connect_to_hivemind, JarbasPtTTerminal
 from jarbas_hive_mind import HiveMindConnection
 from jarbas_hive_mind.discovery import LocalDiscovery
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 from time import sleep
 
 
